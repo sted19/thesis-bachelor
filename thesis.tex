@@ -1,6 +1,11 @@
 \documentclass[Lau, italian]{sapthesis}
 
 \usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{subcaption}
+\lstdefinestyle{customc}{xleftmargin=\parindent}
+\lstset{language=Python, numbers=left, numberstyle=\tiny, style=customc}
 
 \title{Applicazioni del riconoscimento facciale per l'accesso a smart-homes}
 \author{Stefano Perrella}
@@ -22,9 +27,19 @@
 
 \mainmatter
 
-\section{gianni}
+\include{tex/introduction}
+
+\include{tex/state_of_the_art}
+
+\include{tex/approach}
+
+\include{tex/results}
+
+\include{tex/conclusions}
 
 \backmatter
 
+\bibliographystyle{alpha}
+\bibliography{bibliography}
 
 \end{document}

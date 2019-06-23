@@ -1,0 +1,9 @@
+\chapter{Introduzione}
+
+Il problema che l'applicazione si pone di risolvere è quello dell'accesso a smart-homes in modo rapido e automatizzato; si ritiene che il riconoscimento facciale sia lo strumento adatto per questo compito quando l'utente che deve accedere alla smart home è il proprietario, o comunque un utente abituale; per quanto riguarda gli utenti occasionali o non abituali, si è pensato di risolvere il problema dell'accesso tramite un meccanismo di richiesta e successiva conferma di accesso via smartphone. L'approccio utilizzato è quello di un'applicazione client-server in cui i client si occupano di catturare le immagini degli utenti e il server si occupa della comunicazione con lo smartphone e i vari client. Il diagramma di flusso in figura \ref{flow_chart} mostra sommariamente il meccanismo di funzionamento dell'applicazione (tralasciando aspetti legati alle tempistiche di esecuzione dei vari task e la possibile esecuzione parallela degli stessi):
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\linewidth]{./data/images/flow_chart.png}
+	\caption{Meccanismo di funzionamento dell'appplicazione.}
+	\label{flow_chart}
+\end{figure}

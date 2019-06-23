@@ -1,0 +1,105 @@
+\chapter{Approccio}
+L'applicazione realizzata per raggiungere l'obiettivo è un'applicazione scritta in Python, di tipo client-server. 
+\section{Struttura del client}
+Il client è un dispositivo dotato di videocamera che esegue, nell'ordine, i seguenti compiti:
+\begin{enumerate} 
+	\item cattura continuamente immagini e le analizza tramite l'algoritmo di \textit{face detection};
+	\item se è avvenuta la \textit{face detection} confronta l'immagine ricevuta con quelle presenti nel dataset tramite l'algoritmo di Machine Learning kNN;
+	\item dipendentemente dal risultato al punto 2, può verificarsi una fra le due situazioni seguenti:
+	\begin{itemize}
+		\item il client fornisce l'accesso all'utente dopo averlo riconosciuto;
+		\item il client invia al server una foto dell'utente e attende una risposta da esso al fine di decidere se concedere l'accesso o meno.
+	\end{itemize}
+	
+\end{enumerate} 
+
+\subsection{Implementazione del rilevamento facciale}
+Per il rilevamento facciale è stata utilizzata la libreria di \textit{face detection} di OpenCV \cite{opencv_library}; in particolare è stato utilizzato il classificatore basato sul lavoro di Viola-Jones come descritto precedentemente \cite{viola2001rapid}. Il blocco di codice in figura seguente mostra l'implementazione delle procedure di acquisizione di immagini e rilevamento facciale:
+
+
+\begin{lstlisting}
+import cv2 as cv
+cap = cv.VideoCapture(0)
+face_cascade = cv.CascadeClassifier("haarcascade.xml")
+ret, frame = cap.read()
+faces = face_cascade.detectMultiScale(frame, 1.3, 5)
+if (len(faces) == 0):
+  pass
+else:
+  for (x,y,w,h) in faces:
+    cv.rectangle(frame, (x,y), (x+w,y+h), (255,0,0), 2)
+\end{lstlisting}
+
+
+Le immagini sono acquisite dalla videocamera alla riga 4 e la funzione che effettivamente utilizza l'algoritmo di rilevamento facciale è quella della riga 5, ovvero \textit{detectMultiScale()}; le righe successive servono solamente a disegnare un rettangolo intorno al volto rilevato, quando rilevato. 
+
+\subsection{Implementazione del riconoscimento facciale}
+Per il riconoscimento facciale, come già detto, è stata usata una rete neurale congiuntamente con un algoritmo di Machine Learning di kNN. La rete neurale è stata utilizzata per trasformare l'immagine di un volto in un array di features, ovvero per convertire la rappresentazione di un'immagine in un formato che fosse più compatto e allo stesso tempo rappresentativo dei tratti caratteristici principali di un volto. 
+
+\subsubsection{Estrazione delle features}
+Per questo scopo è stato scelto il modello nn4.small2.v1 pre-trainato di OpenFace \cite{amos2016openface}. La scelta è ricaduta su questo modello perché presenta la proprietà che, dati due array ottenuti come output della rete quando in input sono state date due immagini, la distanza fra gli array è indicativa di quanto i volti sono diversi; la distanza euclidea è quindi una metrica appropriata per determinare se gli array corrispondono a facce diverse o meno. Grazie a questa proprietà è stato possibile utilizzare un algoritmo come quello del kNN (che si basa sulla distanza di punti) per effettuare la classificazione finale e quindi il riconoscimento facciale. Il codice seguente mostra l'implementazione in python del procedimento appena spiegato:
+
+\begin{lstlisting}
+import cv2 as cv 
+
+embedder = cv.dnn.readNetFromTorch(EMBEDDER_PATH)
+def image_to_feature_vector(img):
+  img_blob = cv.dnn.blobFromImage(img, params)
+  embedder.setInput(img_blob)
+  vec = embedder.forward().flatten()
+  return vec
+\end{lstlisting}
+
+
+Nella riga 4 è caricata la rete neurale pre-trainata; nella riga 6 l'immagine da convertire viene inserita in un tensore di quattro dimensioni e viene scalata di un fattore 255 in modo da essere un valido input per la rete neurale; le righe 7-8 sono quelle in cui effettivamente avviene l'estrazione delle feature: prima viene data l'immagine in input alla rete e poi viene inserito l'output di questa nella variabile \textit{vec}, che sarà quindi un vettore 128-dimensionale rappresentativo del volto contenuto nell'immagine di partenza.
+
+\subsubsection{Classificazione}
+La classificazione finale è effettuata comparando le immagini contenute nel dataset con quella da classificare: l'algoritmo di kNN clacola la distanza della nuova immagine da tutte quelle presenti (ovviamente sotto forma di array di features) e poi le ordina in base a questa misurazione; prendendo le distanze ordinate in ordine crescente, se la prima distanza (ovvero la minore) sarà più piccola di una determinata soglia, allora si potrà concludere che con alta probabilità i volti contenuti nelle due immagini appartengono alla stessa persona e, di conseguenza, concedere l'accesso alla smart-home tramite riconoscimento facciale. L'algoritmo di kNN utilizzato è quello messo a disposizione dalle librerie di scikit-learn \cite{scikit-learn}. Il codice seguente mostra l'implementazione appena discussa:
+\begin{lstlisting}
+import os
+import cv2 as cv
+from sklearn.neighbors import NearestNeighbors
+
+def nearest_neighbors(face):
+  feature_vectors = []
+
+  if len(os.listdir(GRANTED_PATH)) >= NUM_NEIGHBORS:
+    dataset_images = sorted(os.listdir(GRANTED_PATH))
+    for image_name in dataset_images:
+      image_path = os.path.join(GRANTED_PATH,image_name)
+      image = cv.imread(image_path)
+      feature_vector = image_to_feature_vector(image)
+      feature_vectors.append(feature_vector)
+
+    neigh = NearestNeighbors(n_neighbors = NUM_NEIGHBORS)
+    neigh.fit(feature_vectors)
+
+    face = [image_to_feature_vector(face)]
+    result = neigh.kneighbors(face)
+    distances = result[0][0]
+    if distances[0] < threshold:
+      print("Access granted through facial recognition")
+      return 1
+    return 0
+  return 0
+\end{lstlisting}
+Dalla riga 6 alla riga 14 viene effettuata la costruzione della lista che contiene tutte le immagini del dataset convertite in array di features; nella riga 16 è definita la tipologia di classificatore necessario e il valore di k; alla riga 17 viene poi fornito in input al classificatore il dataset disponibile; la classificazione viene effettuata alla riga 20: al classificatore è data in input l'immagine da classificare e esso restituisce in output un risultato che è costituito in particolare da una lista ordinata di tutte le distanze dell'immagine da classificare dalle immagini presenti nel dataset. Alla riga 22 si considera la distanza minore ottenuta e si verifica se è abbastanza piccola da poter essere considerata attendibile per un riconoscimento facciale. In caso positivo, si concede l'accesso ritornando il valore 1, in caso negativo è ritornato il valore 0.
+
+\section{Struttura del server}
+Il server si occupa di ricevere le immagini dai client e inviarle sullo smartphone del proprietario della smart-home in modo da richiedere l'accesso per l'utente. La comunicazione tra smartphone e server è stata implementata tramite l'applicazione di messagistica istantanea Telegram, rendendo il server un bot di telegram; per quanto riguarda la comunicazione  tra client e server (e quindi anche l'invio di immagini) è stata sviluppata un'interfaccia di rete in Python che fa uso di socket.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
