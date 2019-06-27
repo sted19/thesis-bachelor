@@ -1,9 +1,39 @@
 \chapter{Introduzione}
 
-Il problema che l'applicazione si pone di risolvere è quello dell'accesso a smart-homes in modo rapido e automatizzato; si ritiene che il riconoscimento facciale sia lo strumento adatto per questo compito quando l'utente che deve accedere alla smart home è il proprietario, o comunque un utente abituale; per quanto riguarda gli utenti occasionali o non abituali, si è pensato di risolvere il problema dell'accesso tramite un meccanismo di richiesta e successiva conferma di accesso via smartphone. L'approccio utilizzato è quello di un'applicazione client-server in cui i client si occupano di catturare le immagini degli utenti e il server si occupa della comunicazione con lo smartphone e i vari client. Il diagramma di flusso in figura \ref{flow_chart} mostra sommariamente il meccanismo di funzionamento dell'applicazione (tralasciando aspetti legati alle tempistiche di esecuzione dei vari task e la possibile esecuzione parallela degli stessi):
+Il problema che l'applicazione si pone di risolvere è quello dell'accesso a smart-homes in modo rapido e automatizzato; si ritiene che il riconoscimento facciale sia lo strumento adatto per questo compito quando l'utente che deve accedere alla smart home è il proprietario, o comunque un utente abituale; per quanto riguarda gli utenti occasionali o non abituali, si è pensato di risolvere il problema dell'accesso tramite un meccanismo di richiesta e successiva conferma di accesso via smartphone. L'approccio utilizzato è quello di un'applicazione client-server in cui i client si occupano di catturare le immagini degli utenti e il server si occupa della comunicazione con lo smartphone e i vari client. Il diagramma di flusso in figura \ref{flow_chart} mostra sommariamente il meccanismo di funzionamento dell'applicazione (tralasciando aspetti legati alle tempistiche di esecuzione dei vari task e la possibile esecuzione parallela degli stessi).
 \begin{figure}
 	\centering
-	\includegraphics[width=0.9\linewidth]{./data/images/flow_chart.png}
+	\includegraphics[width=\linewidth]{./data/images/flow_chart.png}
 	\caption{Meccanismo di funzionamento dell'appplicazione.}
 	\label{flow_chart}
 \end{figure}
+Seguendo il diagramma di flusso, sono spiegati i singoli passi qui di seguito:
+\begin{itemize}
+	\item \textbf{Acquisizione di un'immagine}: tramite una camera è acquisita un'immagine dal calcolatore (o dal controllore che si decide di utilizzare);
+	\item \textbf{Rilevamento facciale}: è applicato un algoritmo di rilevamento facciale all'immagine catturata, che può avere esito positivo o negativo;
+	\begin{itemize}
+		\item esito negativo: l'applicazione prosegue ripartendo dall'acquisizione dell'immagine, scartando l'immagine acquisita;
+		\item esito positivo: l'applicazione prosegue nell'analisi dell'immagine;
+	\end{itemize}
+	\item \textbf{riconoscimento facciale}: si applica un algoritmo di riconoscimento facciale all'immagine in modo da poter determinare se l'accesso sarà garantito o meno prima che l'immagine sia inviata al server;
+	\begin{itemize}
+		\item esito negativo: non è stato riconosciuto il volto dell'utente e quindi c'è bisogno di chiedere direttamente al proprietario della smart-home;
+		\item esito positivo: è stato riconosciuto il volto di un utente abituale e quindi l'accesso è garantito;
+	\end{itemize}
+	\item \textbf{invio richiesta al server}: è inviata la foto dell'utente al server, il quale inoltrerà la richiesta al proprietario via bot Telegram;
+	\begin{itemize}
+		\item risposta negativa: il proprietario non ha garantito l'accesso con un messaggio inviato al bot Telegram, quindi il client riceve dal server un messaggio di "accesso negato"
+		\item risposta positiva: il proprietario ha garantito l'accesso con un messaggio inviato al bot Telegram, quindi il client riceve dal server un messaggio di "accesso garantito";
+	\end{itemize}
+\end{itemize}
+
+
+
+\section{Struttura del documento}
+Il documento è strutturato nel seguente modo:
+\begin{itemize}
+	\item \textbf{Stato dell'arte}: è fornita una panoramica sullo stato delle tecnologie utilizzate e sono descritte le teorie alla base di esse;
+	\item \textbf{Approccio}: è spiegato il funzionamento dell'applicazione mostrando le implementazioni specifiche delle tecniche di rilevamento facciale, riconoscimento facciale e comunicazione client-server;
+	\item \textbf{Risultati}: sono mostrati i risultati ottenuti a partire dagli score che l'algoritmo ottiene su un dataset di volti fino a osservare come si comporta in casi pratici;
+	\item \textbf{Conclusioni}: sono tratte le conclusioni e presi spunti su possibili miglioramenti del progetto.
+\end{itemize}

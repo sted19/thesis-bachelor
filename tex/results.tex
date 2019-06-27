@@ -1,5 +1,5 @@
 \chapter{Risultati}
-In questo capitolo saranno mostrati alcuni risultati ottenuti dal meccanismo di riconoscimento facciale;
+In questo capitolo saranno mostrati alcuni risultati ottenuti dall'applicazione;
 sono state effettuate due tipologie di test:
 \begin{itemize}
 	\item test su un dataset di 40823 immagini e 106 classi (106 diversi soggetti) in modo da testare la bontà del classificatore;
@@ -92,11 +92,11 @@ Il dataset utilizzato è quello di YouTube faces di \cite{wolf2011face}. Il data
 	\begin{subfigure}{0.1 \textwidth}
 		\includegraphics[width=0.8\linewidth]{./data/images/dataset_no_crop/26.jpg}
 	\end{subfigure}
-	\caption{Immagini di test prese dal dataset YouTube faces \cite{wolf2011face}}
+	\caption{Immagini del dataset YouTube faces \cite{wolf2011face}}
 	\label{test_images}
 \end{figure}
 
-Prima di utilizzare le immagini per la classificazione è stato applicato un algoritmo di \text{face detection} ed è stato effettuato il crop della zona del volto, successivamente è stata utilizzato un metodo di estrazione di features per trasformare le immagini in array di features. Sono state utilizzate 40823 immagini di 106 soggetti diversi; il dataset è stato suddiviso in un insieme di train costituito di 30617 immagini e un insieme di test di 10206. Le immagini di train sono state fornite al classificatore di tipo kNN di scikit-learn e poi è stata calcolata l'accuratezza ottenuta \cite{scikit-learn}. Di seguito il codice utilizzato per effettuare il test:
+Prima di utilizzare le immagini per la classificazione è stato applicato un algoritmo di \text{face detection} ed è stato effettuato il crop della zona del volto, successivamente è stata utilizzata la rete neurale pre-trainata di OpenFace per trasformare le immagini in array di feature \cite{amos2016openface}. Sono state utilizzate 40823 immagini di 106 soggetti diversi; il dataset è stato suddiviso in un insieme di train costituito di 30617 immagini e un insieme di test di 10206. Le immagini di train sono state fornite al classificatore di tipo kNN di scikit-learn e poi è stata calcolata l'accuratezza ottenuta sull'insieme di test \cite{scikit-learn}. Di seguito il codice utilizzato per effettuare il test:
 
 \begin{lstlisting}
 X_train, X_test, y_train, y_test = 
@@ -105,93 +105,138 @@ clf = neighbors.KNeighborsClassifier(5)
 clf.fit(X_train, y_train)
 accuracy = clf.score(X_test, y_test)
 \end{lstlisting}
-L'accuratezza ottenuta dal classificatore è di 0.9778561630413483.
+L'accuratezza ottenuta dal classificatore è di 0.9778561630413483, in una scala da 0 a 1.
 
 
 \section{Test di funzionamento}
+Per testare il reale funzionamento dell'applicazione sono state effettuate due tipologie di prova: la prima consiste nel testare l'efficacia del metodo di riconoscimento facciale in contesti pratici, mentre nella seconda sono calcolati i tempi di calcolo dell'applicazione e i tempi di trasferimento delle immagini via rete.
 
-Per testare il funzionamento dell'applicazione sono state utilizzate solo 10 immagini con 5 soggetti in tutto: l'applicazione si troverà sempre ad operare con poche immagini di pochi soggetti, quindi è stato necessario considerare che il dataset possa essere composto anche da così poche immagini; immagini dello stesso volto sono diverse perché il volto non si trova nella stessa posizione per entrambe o perché la persona raffigurata ha modificato la sua espressione facciale. Sono state quindi comparate le distanze fra diverse immagini e immagini dello stesso volto catturato in diversi momenti. In figura \ref{try_images} sono mostrate le immagini utilizzate. 
-
+\subsection{Efficacia del riconoscimento facciale}
+Per questo tipo di test sono state utilizzate solo 10 immagini con 5 soggetti in tutto, due immagini per elemento; il motivo di una scelta di questo tipo è che l'applicazione si troverà sempre ad operare con poche immagini di pochi soggetti, quindi è stato necessario considerare che il dataset possa essere composto da un numero di immagini estremamente limitato; immagini dello stesso volto sono diverse perché il volto non si trova nella stessa posizione per entrambe o perché la persona raffigurata ha modificato la sua espressione facciale. In figura \ref{try_images} sono mostrate le immagini utilizzate;
 \begin{figure}
 	\centering
 	\begin{subfigure}{0.2 \textwidth}
 		\includegraphics[width=0.8\linewidth]{./data/images/dataset/0.jpg}
-		\caption{1a}
+		\caption{0}
 	\end{subfigure}
 	\begin{subfigure}{0.2 \textwidth}
 		\includegraphics[width=0.8\linewidth]{./data/images/dataset/1.jpg}
-		\caption{1b}
+		\caption{1}
 	\end{subfigure}
 	\begin{subfigure}{0.2 \textwidth}
 		\includegraphics[width=0.8\linewidth]{./data/images/dataset/2.jpg}
-		\caption{2a}
+		\caption{2}
 	\end{subfigure}
 	\begin{subfigure}{0.2 \textwidth}
 		\includegraphics[width=0.8\linewidth]{./data/images/dataset/3.jpg}
-		\caption{2b}
+		\caption{3}
 	\end{subfigure}
 	\begin{subfigure}{0.2 \textwidth}
 		\includegraphics[width=0.8\linewidth]{./data/images/dataset/4.jpg}
-		\caption{3a}
+		\caption{4}
 	\end{subfigure}
 	\begin{subfigure}{0.2 \textwidth}
 		\includegraphics[width=0.8\linewidth]{./data/images/dataset/5.jpg}
-		\caption{3b}
+		\caption{5}
 	\end{subfigure}
 	\begin{subfigure}{0.2 \textwidth}
 		\includegraphics[width=0.8\linewidth]{./data/images/dataset/6.jpg}
-		\caption{4a}
+		\caption{6}
 	\end{subfigure}
 	\begin{subfigure}{0.2 \textwidth}
 		\includegraphics[width=0.8\linewidth]{./data/images/dataset/7.jpg}
-		\caption{4b}
+		\caption{7}
 	\end{subfigure}
 	\begin{subfigure}{0.2 \textwidth}
 		\includegraphics[width=0.8\linewidth]{./data/images/dataset/8.jpg}
-		\caption{5a}
+		\caption{8}
 	\end{subfigure}
 	\begin{subfigure}{0.2 \textwidth}
 		\includegraphics[width=0.8\linewidth]{./data/images/dataset/9.jpg}
-		\caption{5b}
+		\caption{9}
 	\end{subfigure}
 	\caption{Immagini di test ottenute dal dataset YouTube faces applicando un algoritmo di \textit{face detection} e successivo crop del volto \cite{wolf2011face}}
 	\label{try_images}
 \end{figure}
+il test è stato effettuato prendendo ogni immagine fra le presenti in figura \ref{try_images} ed effettuando il riconoscimento facciale utilizzando come dataset tutte le altre immagini, inclusa quella da riconoscere. La tabella \ref{10images} mostra le distanze di ogni immagine dalle prime 4 più vicine ad essa.
 
-Il test è stato effettuato prendendo ogni immagine fra le presenti in figura \ref{try_images} e effettuando il riconoscimento facciale utilizzando come dataset tutte le altre immagini, inclusa quella da riconoscere. Di seguito è riportata la stampa effettuata dal programma con le distanze clacolate:
-\begin{lstlisting}
-array([[0.        , 0.24959708, 0.90029748, 0.901967  ]] 
-array([[0, 1, 6, 7]]))
+\vfill
 
-array([[0.        , 0.24959708, 0.87065946, 0.91801676]]
-array([[1, 0, 6, 7]]))
+\begin{table}
+	\caption{Test di riconoscimento facciale con 10 immagini di 5 soggetti diversi.}
+	\makebox[\textwidth][c]{
+		\begin{tabular}{|c|cc|cc|cc|cc|}
+			\toprule
+			Immagine	&	\multicolumn{2}{c|}{ 1} & \multicolumn{2}{c|}{ 2} & \multicolumn{2}{c|}{ 3} & \multicolumn{2}{c|}{ 4} \\
+			\midrule
+			&	Img & Dist & Img & Dist & Img & Dist & Img & Dist \\
+			0	&  0 & 0 & 1 & 0.2495970 & 6 & 0.9002974 & 7 & 0.901967  \\
+			1	&  1 & 0 & 0 & 0.2495970 & 6 & 0.8706594 & 7 & 0.9180167  \\
+			2	&  2 & 0 & 3 & 0.5777061 & 9 & 0.8817960 & 8 & 0.8840150  \\
+			3	&  3 & 0 & 2 & 0.5777061 & 8 & 0.7611737 & 9 & 0.7698907  \\
+			4	&  4 & 0 & 5 & 0.5663216 & 8 & 0.8779126 & 6 & 1.0152850  \\
+			5	&  5 & 0 & 4 & 0.5663216 & 7 & 1.0529598 & 6 & 1.0655721  \\
+			6	&  6 & 0 & 7 & 0.3715512 & 1 & 0.8706594 & 0 & 0.9002974  \\
+			7	&  7 & 0 & 6 & 0.3715512 & 0 & 0.901967  & 1 & 0.9180167  \\
+			8	&  8 & 0 & 9 & 0.4609600 & 3 & 0.7611737 & 4 & 0.8779126  \\
+			9	&  9 & 0 & 8 & 0.4609600 & 3 & 0.7698907 & 2 & 0.8817960  \\
+			\hline
+		\end{tabular}
+	}
+	\label{10images}
+\end{table}
 
-array([[0.        , 0.57770619, 0.88179605, 0.88401503]]
-array([[2, 3, 9, 8]]))
 
-array([[0.        , 0.57770619, 0.76117377, 0.76989079]]
-array([[3, 2, 8, 9]]))
 
-array([[0.        , 0.56632163, 0.87791262, 1.01528504]]
-array([[4, 5, 8, 6]]))
+\vfill
 
-array([[0.        , 0.56632163, 1.05295989, 1.06557215]]
-array([[5, 4, 7, 6]]))
+Nella prima colonna c'è il numero corrispondente ad ogni immagine, mentre nelle successive c'è la distanza calcolata dalle 4 immagini più vicine nella forma Immagine - Distanza. Come è facile notare, la distanza di ogni immagine da se stessa è 0, mentre la distanza dall'altra immagine che contiene lo stesso volto è un valore relativamente piccolo, generalmente inferiore a 0.6. Le distanze che le immagini presentano dalle altre che non raffigurano lo stesso soggetto, invece, sono tendenzialmente più elevate e, in questo caso ristretto di test, non inferiori a 0.75. A partire da questi risultati si può determinare che una soglia accettabile sia 0.6, o anche 0.5 se si vuole ottenere maggiore sicurezza evitando falsi positivi, sacrificando però alcuni risultati che, seppur corretti, presenteranno un valore di distanza superiore alla soglia. 
 
-array([[0.        , 0.3715512 , 0.87065946, 0.90029748]]
-array([[6, 7, 1, 0]]))
+\subsection{Tempi di calcolo e latenza}
 
-array([[0.        , 0.3715512 , 0.901967  , 0.91801676]]
-array([[7, 6, 0, 1]]))
+Per valutare i tempi di computazione c'è da tenere conto anche delle caratteristiche del calcolatore utilizzato, ovvero un Intel Core i5 di settima generazione, dual core, mentre per valutare i tempi di trasmissione dei dati in rete c'è da tener conto che la comunicazione è avvenuta in localhost, in modo da essere indipendente da possibili problematiche di rete non direttamente collegate alle performance dell'applicazione. 
+Sono stati valutati tre comportamenti dell'applicazione:
+\begin{itemize}
+	\item tempi di calcolo necessari per la \textit{face detection};
+	\item tempi di calcolo necessari per la \textit{face recognition};
+	\item tempo necessario affinché gran parte della comunicazione client server sia portata a termine: dal momento in cui il client si connette fino al momento in cui la foto dell'utente è stata inviata dal bot.
+\end{itemize}
+Per quanto riguarda il riconoscimento facciale, lo stesso calcolo è stato eseguito due volte: la prima volta nel caso ci siano 10 immagini nel dataset, mentre la seconda nel caso in cui ce ne siano 100; questo al fine di capire in che modo si comporta l'algoritmo se il numero di immagini da cui calcolare la distanza cresce. La tabella \ref{times} mostra i risultati ottenuti.
+Come si può notare, il tempo di calcolo richiesto dalla \textit{face detection} è irrisorio, solitamente dell'ordine di pochi centesimi di secondo; il tempo necessario all'algoritmo di \text{face recognition}, invece, è più elevato: in presenza di sole 10 immagini si aggira intorno al decimo di secondo, mentre quando le immagini presenti nel dataset diventano 100 il tempo richiesto medio è 0.8798347777647059 secondi. La scelta dell'algoritmo utilizzato è stata lasciata alla libreria di scikit-learn \cite{scikit-learn}: gli algoritmi tra cui è effettuata la scelta variano tra tassi di crescita del tempo necessario per una query di $\mathcal{O}(D\log{N})$ e $\mathcal{O}(DN)$, con $D$ dimensione dell'array di feature e $N$ numero di sample nel dataset; poiché il test è stato effettuato su dimensioni del dataset piccole (allo stesso modo di come l'applicazione si troverà ad operare), la differenza in termini di tempo tra un algoritmo e l'altro è irrisoria e non percettibile (gli algoritmi che hanno tassi di crescita pari a $\mathcal{O}(D\log{N})$ devono anche costruire delle strutture come alberi prima di effettuare la computazione, quindi la differenza del tasso di crescità si potrà notare solamente a dimensioni più elevate del dataset).
 
-array([[0.        , 0.46096002, 0.76117377, 0.87791262]]
-array([[8, 9, 3, 4]]))
-
-array([[0.        , 0.46096002, 0.76989079, 0.88179605]]
-array([[9, 8, 3, 2]]))
-
-\end{lstlisting}
-Ogni coppia di due righe è il risultato conseguito da un'immagine, nell'ordine che hanno in figura \ref{try_images}. Come è facile notare, la distanza di ogni immagine da se stessa è 0, mentre la distanza dall'altra immagine con lo stesso volto è un valore relativamente piccolo, generalmente inferiore a 0.6. Le distanze che le immagini presentano dalle altre che non raffigurano lo stesso soggetto sono tendenzialmente elevate e, in questo caso ristretto di test, non inferiori a 0.75. A partire da questi risultati si può determinare che una soglia accettabile sia 0.6, o anche 0.5 se si vuole ottenere maggiore sicurezza evitando falsi positivi, sacrificando alcuni risultati che, seppur corretti, presentano un valore di distanza superiore alla soglia. 
+\vfill
+\begin{table}
+	\centering
+	\caption{Tempi di computazione e latenze di rete in secondi calcolati con 17 immagini.}
+	\makebox[\textwidth][c]{
+		\begin{tabular}{|c|cc|c|}
+			\toprule
+			face detection	&	\multicolumn{2}{c|}{face recognition} & network communication \\
+			\midrule
+				& 10 Immagini	& 100 Immagini &     \\
+			0.014509916 & 0.161392211 & 0.960333108 & 0.263416290 \\
+			0.032940387	& 0.096600294 & 0.873314857 & 0.174825906 \\
+			0.029700279 & 0.110618114 & 0.854538202 & 0.169869899 \\
+			0.049476146 & 0.096602916 & 0.861412763 & 0.166990518 \\
+			0.051826953 & 0.097148180 & 0.888626813 & 0.167473793 \\
+			0.030120611 & 0.098025560 & 0.855652809 & 0.166766643 \\
+			0.032388925 & 0.098511934 & 0.875802040 & 0.172234296 \\
+			0.040763378 & 0.093986034 & 0.866778373 & 0.169205427 \\
+			0.035730123 & 0.097849845 & 0.863261461 & 0.177958250 \\
+			0.032896041 & 0.102158784 & 0.874685049 & 0.180064439 \\
+			0.039192914 & 0.096174716 & 0.871063709 & 0.172000408 \\
+			0.037184238 & 0.095623254 & 0.877839088 & 0.179764747 \\
+			0.032016754 & 0.098569154 & 0.887072086 & 0.183802366 \\
+			0.040841341 & 0.099531650 & 0.876359701 & 0.169812202 \\
+			0.025319099 & 0.099372148 & 0.937300205 & 0.132531404 \\
+			0.047005414 & 0.097668886 & 0.865275859 & 0.138302803 \\
+			0.047963857 & 0.097245216 & 0.867875099 & 0.174499273 \\
+			\hline
+		\end{tabular}
+	}
+	\label{times}
+\end{table}
+\vfill
 
 
 

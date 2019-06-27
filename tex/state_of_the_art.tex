@@ -1,21 +1,39 @@
 \chapter{Stato dell'arte}
-Le tecniche principali alla base del progetto sono quelle del rilevamento facciale e riconoscimento facciale. In questo capitolo è descritta la teoria alla base di entrambe.
+Le tecniche principali alla base del progetto sono quelle del rilevamento facciale e riconoscimento facciale. In questo capitolo, per ognuno dei due argomenti, è prima fornita una panoramica sulle metodologie utilizzate e lo stato della ricerca al riguardo, successivamente è spiegata parte della teoria che li riguarda.
 
 \section{Rilevamento facciale}
-Il metodo di rilevamento facciale utilizzato è uno dei più famosi approcci al problema, ideato da Paul Viola e Michael Jones \cite{viola2001rapid} e successivamente migliorato da Rainer Lienhart \cite{lienhart2002extended}. Si tratta di una procedura di \textit{object detection} basata sul calcolo del valore di semplici features rettangolari, in modo da ottenere un sistema più rapido rispetto ad altri sistemi basati sulla valutazione dei singoli pixel; per quanto riguarda i tempi di computazione il calcolo di queste features è stato reso possibile dall'introduzione dell'immagine integrale, che è un particolare metodo di rappresentazione di un'immagine \cite{viola2001rapid}. Per ottenere la funzione di classificazione è stata scelta una variante di AdaBoost, utilizzata sia per selezionare un gruppo ristretto di features rispetto a tutte quelle esistenti che per addestrare il classificatore \cite{viola2001rapid}. Inoltre è stato possibile ottenere efficienza elevata tramite la struttura a cascata: il classificatore è costituito di svariati classificatori più semplici che vengono applicati uno dopo l'altro ad una regione di interesse, la quale è scartata non appena uno dei classificatori forninsce in output un risultato negativo. In questo modo si è ridotto notevolmente il tempo di calcolo in regioni in cui, fin dalla prima analisi, risulta altamente improbabile che sia presente l'oggetto da rilevare.
+Il rilevamento facciale è una tecnica strettamente necessaria per qualunque applicazione di riconoscimento facciale, perché permette ad un calcolatore di localizzare ed estrarre un volto da un'immagine, separandolo dallo sfondo. Nel corso del tempo sono state proposte varie tecniche di rilevamento facciale, a partire da algoritmi semplici basati sul riconoscimento di spigoli in un'immmagine fino ad arrivare ad algoritmi avanzati basati sul riconoscimento di specifici pattern. Le sfide che un algoritmo di \textit{face detection} si trova ad affrontare sono descritte dai quattro punti seguenti \cite{datta2015face}:
+\begin{enumerate}
+	\item \textbf{ostruzione}: le facce possono essere parzialmente coperte da altri oggetti;
+	\item \textbf{espressioni facciali}: le caratteristiche di un volto sono direttamente collegate alle espressioni facciali della persona;
+	\item \textbf{posa}: le posizioni relative di camera e volto apportano considerevoli variazioni all'immagine;
+	\item \textbf{illuminazione}: le condizioni di luce e le caratteristiche della camera sono due importantissimi fattori che modificano il modo in cui il volto appare nell'immagine.
+\end{enumerate}
 
-\subsection{Tipologia delle features}
-Le features semplici utilizzate da Viola-Jones \cite{viola2001rapid} sono di tre tipi: feature composta da due rettangoli, tre rettangoli o quattro rettangoli. In figura \ref{features} si vedono le diverse tipologie di feature; 
+Oltre i quattro problemi mostrati sopra, gran parte delle applicazioni di rilevamento e riconoscimento facciale opera in contesti \textit{real time} e quindi deve affrontare l'ulteriore importantissima sfida di ottenere dei tempi di computazione che siano più piccoli possibile.
+
+I metodi di \textit{face detection} si suddividono in due categorie \cite{datta2015face}:
+\begin{itemize}
+	\item metodi \textbf{feature-based}: prima sono rilevate le caratteristiche di un volto (ad esempio sopracciglia, occhi, naso, bocca) e solo successivamente è inferita la presenza di esso;
+	\item metodi \textbf{image-based}: generalmente sono classificati degli esempi nelle classi "faccia" e "non faccia" e successivamente sono comparate le nuove immagini da classificare con quelle già classificate.
+\end{itemize}
+
+Gli approcci \textbf{feature based} inoltre possono essere suddivisi in tre ulteriori gruppi: sistemi con analisi di basso livello, analisi delle feature o analisi tramite modelli più complessi. Una delle prime applicazioni di \textit{face detection} con analisi di basso livello è descritta in \cite{sakai1972computer}, o più recenetemente in \cite{govindaraju1996locating}, mentre tecniche per rilevare pattern o modelli più complessi sono state approfondite in \cite{lanitis1994automatic}.
+
+Per quanto riguarda invece il problema dell'efficienza e dei tempi di computazione uno degli algoritmi di rilevamento facciale più famosi è quello di Viola-Jones \cite{viola2001rapid}, successivamente migliorato da Rainer Lienhart \cite{lienhart2002extended}, che è quello che è stato da me utilizzato e approfondito in questo capitolo: si tratta di una procedura di \textit{object detection} basata sul calcolo del valore di semplici \textbf{feature rettangolari}, in modo da ottenere un sistema più rapido rispetto ad altri sistemi basati sulla valutazione dei singoli pixel; per ridurre i tempi di computazione il calcolo di queste feature è effettuato tramite la tecinca dell'\textbf{immagine integrale}, che è un particolare metodo di rappresentazione di un'immagine \cite{viola2001rapid}. Per selezionare un gruppo ristretto di feature rispetto a tutte quelle esistenti e per addestrare il classificatore è stata utilizzata una variante dell'algoritmo di \textbf{AdaBoost} \cite{viola2001rapid}. Inoltre è stato possibile ottenere efficienza elevata tramite la \textbf{struttura a cascata}: il classificatore è costituito di svariati classificatori più semplici che vengono applicati uno dopo l'altro ad una regione di interesse, la quale è scartata non appena uno dei classificatori forninsce in output un risultato negativo. In questo modo si è ridotto notevolmente il tempo di calcolo in regioni in cui, fin dalla prima analisi, risulta altamente improbabile che sia presente l'oggetto da rilevare.
+
+\subsection{Tipologia delle feature}
+Le feature semplici utilizzate da Viola-Jones \cite{viola2001rapid} sono di tre tipi: feature composta da due rettangoli, tre rettangoli o quattro rettangoli. In figura \ref{features} si vedono le diverse tipologie di feature; 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.6\linewidth]{./data/images/viola-jones-features.png}
-	\caption{Tipologie di features \cite{viola2001rapid}}
+	\caption{Tipologie di feature \cite{viola2001rapid}}
 	\label{features}
 \end{figure}
 il loro funzionamento è il seguente: per ogni feature la somma dei pixel che si trovano al di sotto dei rettangoli bianchi è sottratta alla somma dei pixel che si trovano al di sotto dei rettangoli grigi.
 
 \subsection{Immagine Integrale}
-L'immagine integrale è una tipologia di rappresentazione delle immagini che ci permette di calcolare il valore di features rettangolari molto rapidamente. Il valore del pixel $x,y$ di un'immagine integrale equivale alla somma dei pixel che si trovano al di sopra e a sinistra di $x,y$ \cite{viola2001rapid}:
+L'immagine integrale è una tipologia di rappresentazione delle immagini che ci permette di calcolare il valore di feature rettangolari molto rapidamente. Il valore del pixel $x,y$ di un'immagine integrale equivale alla somma dei pixel che si trovano al di sopra e a sinistra di $x,y$ \cite{viola2001rapid}:
 \begin{equation}
 	ii(x,y)=\sum_{x'\le{x},y'\le{y}}i(x',y') 
 \end{equation}
@@ -27,19 +45,42 @@ Avendo definito l'immagine integrale in questo modo, il calcolo del valore di un
 	\label{integral}
 \end{figure}
 
-\subsection{Selezione delle features}
-Il numero di features presenti in una regione di soli $24\times24$ pixel è di circa $180,000$, quindi è necessario selezionare solamente le features rilevanti per poter effettuare i calcoli necessari in tempi brevi; una variante dell'algoritmo AdaBoost è stata utilizzata per questo compito, oltre che per il training del classificatore: ci sono dei classificatori deboli che sono basati sulle features rettangolari; questi classificatori vengono addestrati su ogni esempio del dataset. Per ogni feature viene addestrato un classificatore costretto ad utilizzare esclusivamente quella feature; successivamente viene scelto il classificatore che, dopo una valutazione, risulta essere quello con il più piccolo errore, ovvero quello che classifica male il minor numero di esempi. Questo procedimento viene iterato un numero $T$ di volte, aggiornando ogni volta i parametri in base ai risultati ottenuti dal classificatore scelto, fino ad ottenere $T$ classificatori deboli. Il classificatore finale è poi determinato da una somma dei classificatori deboli pesati tramite un valore che dipende dall'errore di classificazione ottenuto da ognuno di essi \cite{viola2001rapid}.
+\subsection{Selezione delle feature}
+Il numero di feature presenti in una regione di soli $24\times24$ pixel è di circa $180,000$, quindi è necessario selezionare solamente le feature rilevanti per poter effettuare i calcoli necessari in tempi brevi; una variante dell'algoritmo AdaBoost è stata utilizzata per questo compito, oltre che per il training del classificatore, che si articola nel modo seguente: ci sono dei classificatori deboli che sono basati sulle feature rettangolari; questi classificatori vengono addestrati su ogni esempio del dataset; per ogni feature viene addestrato un classificatore costretto ad utilizzare esclusivamente quella feature e successivamente viene scelto il classificatore che, dopo una valutazione, risulta essere quello con il più piccolo errore, ovvero quello che classifica male il minor numero di esempi. Questo procedimento viene iterato un numero $T$ di volte, aggiornando ogni volta i parametri in base ai risultati ottenuti dal classificatore scelto, fino ad ottenere $T$ classificatori deboli. Il classificatore finale è poi determinato da una somma dei classificatori deboli pesati tramite un valore che dipende dall'errore di classificazione ottenuto da ognuno di essi \cite{viola2001rapid}.
 
 \subsection{Meccanismo a cascata}
-In un'immagine generalmente la maggior parte dei pixel non contiene un volto; a partire da questo presupposto, è stato necessario introdurre un meccanismo che evitasse di spendere troppa capacità computazionale per calcolare le features in zone poco interessanti di un'immagine e che allo stesso tempo fosse abbastanza accurato. Il meccanismo a cascata funziona nel seguente modo: ci sono classificatori più semplici e classificatori più complessi che sono posti in cascata in ordine di complessità; i classificatori più semplici sono quelli che analizzano gran parte dell'immagine, scartando la maggior parte delle finestre che avrebbero dato risultato negativo. Le finestre dell'immagine che vengono classificate positivamente vengono poi analizzate dai classificatori più complessi, in modo da eliminare il maggior numero possibile di falsi positivi. In presenza di numerosi classificatori in cascata, una finestra dell'immagine è scartata non appena è classificata in modo negativo, mentre per essere classificata in modo positivo deve essere giudicata tale da ogni classificatore presente nella cascata; in questo modo solo le finestre di un'immagine che danno esito positivo richiederanno di effettuare calcoli complessi, mentre la maggior parte delle altre sarà scartata quasi immediatamente \cite{viola2001rapid}.
+In un'immagine generalmente la maggior parte dei pixel non contiene un volto; a partire da questo presupposto, è stato necessario introdurre un meccanismo che evitasse di spendere troppa capacità computazionale per calcolare le feature in zone poco interessanti e che allo stesso tempo fosse abbastanza accurato. Il meccanismo a cascata funziona nel seguente modo: ci sono classificatori più semplici e classificatori più complessi che sono posti in cascata in ordine di complessità; i classificatori più semplici sono quelli che analizzano gran parte dell'immagine, scartando la maggior parte delle zone che avrebbero dato risultato negativo. Le zone dell'immagine che vengono classificate positivamente vengono poi analizzate dai classificatori più complessi, in modo da eliminare il maggior numero possibile di falsi positivi. In presenza di numerosi classificatori in cascata, una zona dell'immagine è scartata non appena è classificata in modo negativo, mentre per essere classificata in modo positivo deve essere giudicata tale da ogni classificatore presente nella cascata; in questo modo solo le zone di un'immagine che danno esito positivo richiederanno di effettuare calcoli complessi (saranno classificate da tutti i classificatori presenti nella cascata), mentre la maggior parte delle altre sarà scartata quasi immediatamente \cite{viola2001rapid}.
 
 \section{Riconoscimento facciale}
-Il riconoscimento facciale è stato ottenuto in due passaggi:
+Il riconoscimento facciale è la tecnica che permette ad un calcolatore di identificare la persona a cui appartiene il volto in un'immagine; un sistema di riconoscimento facciale generalmente consiste di quattro moduli, come mostrato in figura \ref{recognition_modules} \cite{jain2011handbook}:
 \begin{enumerate}
-	\item rappresentazione dell'immagine come un array di features;
-	\item classificazione dell'array di features tramite un algoritmo di classificazione.
+	\item \textbf{face detection}: estrarre il volto dall'immagine e isolarlo dallo sfondo;
+	\item \textbf{face normalization}: normalizzare la faccia geometricamente e a livello fotografico, in modo che tutti i volti si trovino in simili condizioni di allineamento, posizione nell'immagine, illuminazione;
+	\item \textbf{feature extraction}: estrazione delle informazioni rilevanti utili per distinguere facce di persone diverse;
+	\item \textbf{face matching}: le feature estratte dalla foto da identificare sono confrontate con una o più foto presenti nei database; nel caso la comparazione sia di tipo $1:1$, l'output del \textit{matcher} è del tipo "si"/"no", mentre nel caso di comparazioni $1:N$ l'output è l'identità del miglior matching trovato quando c'è un sufficiente grado di confidenza che i due volti siano della stessa persona (ad esempio utilizzando un valore di soglia sulla metrica di calcolo utilizzata nel matching), mentre è "sconosciuto" quando il livello di confidenza non è sufficientemente elevato. 
 \end{enumerate}
-E' stata utilizzata una \textbf{rete neurale convoluzionale} per l'estrazione delle features dall'immagine di un volto, mentre invece l'algoritmo di classificazione utilizzato è stato quello del \textbf{k Nearest Neighbors (kNN)}. 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{./data/images/recognition_modules.png}
+	\caption{Flusso di processamento di un'immagine al fine del riconoscimento facciale \cite{jain2011handbook}.}
+	\label{recognition_modules}
+\end{figure}
+
+
+ Nel tempo sono state proposte varie metodologie di riconoscimento facciale, più o meno efficaci, che possono essere classificate in cinque gruppi, in base al modo in cui identificano una faccia \cite{datta2015face}:
+\begin{enumerate}
+	\item metodi basati sulla struttura di un volto;
+	\item metodi basati sulla rappresentazione di un volto in un sottospazio;
+	\item tecniche che impiegano l'utilizzo di reti neurali;
+	\item metodi basati su modelli che utilizzano la forma e struttura di un volto, oltre che informazioni sulla profondità degli elementi nell'immagine;
+	\item metodi che fanno uso di tecniche di correlazione o algoritmi di SVM.
+\end{enumerate}
+
+Nei primi sviluppi del riconoscimento facciale sono state utilizzate esplicitamente caratteristiche geometriche come quelle di occhi, naso, bocca e mento \cite{kanade1974picture}. Successivamente si è capito che le sole caratteristiche geometriche di quegli elementi non sono sufficienti; passi avanti importanti sono stati fatti tramite l'introduzione di approcci che operano direttamente sulla rappresentazione dell'immagine come array di intensità dei pixel estraendo le caratteristiche del volto e rappresentandole in un sottospazio, come  \cite{turk1991eigenfaces}, modelli di questo tipo però sono ancora poco efficaci nel descrivere variazioni locali nell'aspetto di un volto e non sono capaci di cogliere particolari sottigliezze come concavità e sporgenze. 
+
+Attualmente il riconoscimento facciale, nel caso di buone condizioni di luminosità e rilevamento frontale è un problema quasi completamente risolto, mentre c'è ancora da lavorare per affrontare problemi come il cattivo posizionamento del volto nell'immagine o la scarsa illuminzione.
+
+Per quanto riguarda i quattro moduli che compongono un meccanismo di \textit{face recognition} , nell'applicazione descritta in questa tesi la \textit{feature extraction} è stata effettuata utilizzando una \textbf{rete neurale convoluzionale}, mentre invece per ottenere il \textit{feature matching} è stato utilizzato un algoritmo di tipo \textbf{k Nearest Neighbors (kNN)}. La \textit{face normalization} è l'unico aspetto del riconoscimento facciale che non è stato trattato, perché si assume che le condizioni di luce e di posizionamento del volto siano simili in ogni immagine.
 
 \subsection{Reti neurali}
 In questa sezione si presenta il concetto di rete neurale feedforward, in particolare viene approfondita la tipologia di rete neurale convoluzionale. 
@@ -70,7 +111,7 @@ Per quanto riguarda applicazioni di Machine Learning, la convoluzione generalmen
 	S(i,j)=\sum_{m}{\sum_{n}{I(i-m,j-n)K(m,n)}}
 	\label{multidimensional_convolution}
 \end{equation}
-La maggior parte delle librerie di Machine Learning utilizzano però un'operazione chiamata \textit{cross-correlation}, molto simile alla convoluzione, che è la seguente \cite{goodfellow2016deep}:
+La maggior parte delle librerie di Machine Learning utilizza però un'operazione chiamata \textit{cross-correlation}, molto simile alla convoluzione, che è la seguente \cite{goodfellow2016deep}:
 \begin{equation}
 S(i,j)=\sum_{m}{\sum_{n}{I(i+m,j+n)K(m,n)}}
 \label{cross-correlation}
@@ -90,7 +131,7 @@ Un layer convoluzionale è un array di \textit{feature-maps}; una \textit{featur
 \fi
 
 \subsection{k Nearest Neighbors}
-Un algoritmo di Nearest Neighbors si basa sull'assunzione che le features utilizzate per effettuare una classificazione sono distribuite in modo tale che la distanza fra esse sia rilevante alla classificazione e che punti vicini fra loro siano più probabilmente appartenenti alla stessa classe rispetto a punti che invece sono lontani fra loro \cite{shalev2014understanding}. 
+Un algoritmo di Nearest Neighbors si basa sull'assunzione che le feature utilizzate per effettuare una classificazione sono distribuite in modo tale che la distanza fra esse sia rilevante alla classificazione e che punti vicini fra loro siano più probabilmente appartenenti alla stessa classe rispetto a punti che invece sono lontani fra loro \cite{shalev2014understanding}. 
 
 \subsubsection{Formulazione matematica del kNN} 
 Assumiamo di avere un dominio $X$ su cui è definita una metrica $\rho$ tale che $\rho:X\times X \mapsto \mathbb{R}$ è una funzione che ritorna la distanza fra due elementi di $X$. Sia $S=(\pmb{x}_{1},y_{1}),\dots,(\pmb{x}_{m},y_{m})$ una sequenza di esempi $\pmb{x}_{i}$ con le rispettive classi $y_{i}$ e sia $\pi_{1}(\pmb{x}),\dots,\pi_{m}(\pmb{x})$ un riordinamento di $\{1,\dots,m\}$ basato sulla distanza da $\pmb{x}$, così che, per ogni $i<m$, vale la seguente \cite{shalev2014understanding}:
@@ -109,5 +150,5 @@ Per un qualsiasi numero $k$ possiamo quindi definire una regola di classificazio
 \end{figure}
 
 \section{Lavori precedenti}
-Algoritmi di classificazione di Machine Learning sono stati già utilizzati precedentemente per ottenere il risultato del riconoscimento facciale, come dimostra l'articolo di Pallabi Parveen e Bhavani Thuraisingham in cui sono anche stati messi a confronto vari algoritmi come kNN e SVM per misurarne l'efficienza e l'accuratezza al fine di ottenere un valido sistema di riconoscimento facciale real-time. \cite{parveen2006face}.
+Algoritmi di classificazione di Machine Learning sono stati già utilizzati precedentemente per ottenere il risultato del riconoscimento facciale, come dimostrano i seguenti: \cite{santoso2017efficient} in cui è sviluppato un metodo per misurare la frequenza degli studenti nelle classi tramite \textit{face recognition}, e \cite{farsi2014fast} in cui è utilizzata una versione pesata del kNN per classificare le foto da riconoscere avendo a disposizione un solo training sample per target. Inoltre nell'articolo di Pallabi Parveen e Bhavani Thuraisingham sono anche stati messi a confronto vari algoritmi come kNN e SVM per misurarne l'efficienza e l'accuratezza al fine di ottenere un valido sistema di riconoscimento facciale real-time \cite{parveen2006face}.
 
